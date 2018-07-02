@@ -7,8 +7,8 @@ defmodule CLITest do
 
   describe "parse_args/1" do
     test "prints out the usage and exits" do
-      # assert parse_args(["-h", "anything"]) == :normal
-      # assert parse_args(["--help", "anything"]) == :normal
+      assert parse_args(["-h", "anything"]) == :help
+      assert parse_args(["--help", "anything"]) == :help
     end
 
     test "returns the provided location if given" do

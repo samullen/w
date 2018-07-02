@@ -2,7 +2,8 @@ defmodule W.CLI do
   def run(argv) do
     argv
     |> parse_args
-    |> retrieve_lat_long
+    |> process
+    |> present_output
   end
 
   def parse_args(argv) do
@@ -11,8 +12,7 @@ defmodule W.CLI do
 
     case parse do
       { [ help: true ], _, _ } ->
-        usage()
-        exit(:normal)
+        :help
 
       { _, [ location], _ } ->
         location
@@ -27,7 +27,43 @@ defmodule W.CLI do
       """
   end
 
-  def retrieve_lat_long(location) do
-    IO.puts location
+  def process(:help) do
+    usage()
+    System.halt(0)
+  end
+
+  def process(nil) do
+    IO.puts "Get lat/lon from IP"
+  end
+
+  def process(location) do
+    lat_long_from_location(location)
+    |> W.DarkskyForecast.fetch
+  end
+
+  def present_output({:ok, forecast}) do
+    forecast
+    |> W.Presenter.alerts
+    |> W.Presenter.current_conditions
+    |> W.Presenter.daily_forecast
+  end
+
+  def present_output(:error, body) do
+    IO.puts body
+  end
+
+  def lat_long_from_location(location) do
+    case Geocoder.call(location) do
+      {:ok, coords} ->
+        coords
+
+      {:error, _} ->
+        IO.puts "Unable to retrieve forecast for '#{location}'."
+        System.halt(0)
+
+      _ ->
+        IO.puts "Something unexpected happend"
+        System.halt(0)
+    end
   end
 end

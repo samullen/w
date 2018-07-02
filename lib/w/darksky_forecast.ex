@@ -20,6 +20,6 @@ defmodule W.DarkskyForecast do
   end
 
   def handle_response({ _, %{status_code: _, body: body}}) do
-    { :error, body }
+    { :error, Poison.Parser.parse!(body) }
   end
 end
