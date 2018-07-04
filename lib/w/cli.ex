@@ -42,6 +42,7 @@ defmodule W.CLI do
   end
 
   def present_output({:ok, forecast}) do
+    IO.puts ""
     forecast
     |> W.Presenter.alerts
     |> W.Presenter.current_conditions
