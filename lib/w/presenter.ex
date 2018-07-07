@@ -34,7 +34,15 @@ defmodule W.Presenter do
   end
   defp _daily_forecast([]), do: []
   defp _daily_forecast([day|days]) do
-    IO.puts "#{day_name(day["time"])} #{overview(day)}  #{hilo(day)} #{wind(day)}"
+    [
+      day_name(day["time"]),
+      overview(day),
+      hilo(day),
+      precip(day),
+      wind(day)
+    ]
+    |> Enum.join("   ")
+    |> IO.puts
 
     _daily_forecast(days)
   end
@@ -42,28 +50,28 @@ defmodule W.Presenter do
   defp wind_direction(nil), do: "N/A"
   defp wind_direction(bearing) do
     case bearing do
-      direction when direction in 0..22 -> "N "
+      direction when direction in 0..22 -> " N"
       direction when direction in 23..67 -> "NW"
-      direction when direction in 68..112 -> "W "
+      direction when direction in 68..112 -> " W"
       direction when direction in 113..157 -> "SW"
-      direction when direction in 158..203 -> "S "
+      direction when direction in 158..203 -> " S"
       direction when direction in 204..248 -> "SE"
-      direction when direction in 249..292 -> "E "
+      direction when direction in 249..292 -> " E"
       direction when direction in 293..337 -> "NE"
-      direction when direction in 338..360 -> "N "
+      direction when direction in 338..360 -> " N"
       _ -> "N/A"
     end
   end
 
   defp overview(forecast) do
     Map.get(%{
-      "clear-day" => "#{IO.ANSI.yellow} ☀ #{IO.ANSI.default_color}",
-      "clear-night" => "#{IO.ANSI.white} ☾ #{IO.ANSI.default_color}",
-      "rain" => "#{IO.ANSI.blue} ☂ #{IO.ANSI.default_color}",
-      "snow" => "#{IO.ANSI.light_blue} ❄ #{IO.ANSI.default_color}",
-      "sleet" => "#{IO.ANSI.light_white} ❅ #{IO.ANSI.default_color}",
-      "wind" => "#{IO.ANSI.light_white} ↝ #{IO.ANSI.default_color}",
-      "fog" => "#{IO.ANSI.color(240)} ☲ #{IO.ANSI.default_color}",
+      "clear-day" => "#{IO.ANSI.yellow}  ☀#{IO.ANSI.default_color}",
+      "clear-night" => "#{IO.ANSI.white}  ☾#{IO.ANSI.default_color}",
+      "rain" => "#{IO.ANSI.blue}  ☂#{IO.ANSI.default_color}",
+      "snow" => "#{IO.ANSI.light_blue}  ❄#{IO.ANSI.default_color}",
+      "sleet" => "#{IO.ANSI.light_white}  ❅#{IO.ANSI.default_color}",
+      "wind" => "#{IO.ANSI.light_white}  ↝#{IO.ANSI.default_color}",
+      "fog" => "#{IO.ANSI.color(240)}  ☲#{IO.ANSI.default_color}",
       "cloudy" => "#{IO.ANSI.color(240)} ☁ #{IO.ANSI.default_color}",
       "partly-cloudy-day" => "#{IO.ANSI.color(240)}☁ #{IO.ANSI.yellow}☀#{IO.ANSI.default_color}",
       "partly-cloudy-night" => "#{IO.ANSI.color(240)}☁ #{IO.ANSI.white}☾#{IO.ANSI.default_color}",
@@ -74,8 +82,16 @@ defmodule W.Presenter do
     "#{temperature(forecast["temperatureHigh"])} / #{temperature(forecast["temperatureLow"])}"
   end
 
+  defp precip(forecast) do
+    "#{round(forecast["precipProbability"] * 100.0)}%"
+    |> String.pad_leading(4)
+  end
+
   defp wind(forecast) do
-    "#{wind_direction(forecast["windBearing"])} #{Float.ceil(forecast["windSpeed"] / 1)}"
+    [wind_direction(forecast["windBearing"]),
+     String.pad_leading("#{Float.ceil(forecast["windSpeed"] / 1)}", 4)]
+    |> Enum.join(" ")
+    |> String.pad_leading(8)
   end
 
   defp temperature(value) do
