@@ -22,7 +22,7 @@ defmodule W.Presenter do
     IO.puts """
       #{IO.ANSI.bright}#{temperature(conditions["temperature"])} #{conditions["summary"]}#{IO.ANSI.normal}
 
-      #{IO.ANSI.bright}Humidity:#{IO.ANSI.normal} #{conditions["humidity"] * 100}%
+      #{IO.ANSI.bright}Humidity:#{IO.ANSI.normal} #{humidity(conditions["humidity"])}
       #{IO.ANSI.bright}Wind:#{IO.ANSI.normal}     #{wind(conditions)}
       """
 
@@ -41,7 +41,7 @@ defmodule W.Presenter do
       precip(day),
       wind(day)
     ]
-    |> Enum.join("   ")
+    |> Enum.join("  ")
     |> IO.puts
 
     _daily_forecast(days)
@@ -95,7 +95,11 @@ defmodule W.Presenter do
   end
 
   defp temperature(value) do
-    "#{trunc(Float.ceil(value / 1))}°"
+    String.pad_leading("#{trunc(Float.ceil(value / 1))}°", 4)
+  end
+
+  defp humidity(value) do
+    String.pad_leading("#{round(value * 100)}%", 4)
   end
 
   defp day_name(time) do
